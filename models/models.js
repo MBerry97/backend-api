@@ -35,3 +35,20 @@ exports.fetchArticleById = (id) => {
       }
     });
 };
+
+exports.updateArticleById = (id, updateValue) => {
+  return knex("articles")
+    .where("article_id", id)
+    .increment("votes", updateValue)
+    .returning("*")
+    .then((article) => {
+      if (article.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "this article does not exist",
+        });
+      } else {
+        return { article };
+      }
+    });
+};

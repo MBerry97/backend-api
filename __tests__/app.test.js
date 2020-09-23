@@ -2,9 +2,9 @@ const app = require("../app");
 const request = require("supertest");
 const connection = require("../connection");
 
-// beforeEach(() => {
-//   return connection.seed.run();
-// });
+beforeEach(() => {
+  return connection.seed.run();
+});
 
 afterAll(() => {
   return connection.destroy();
@@ -93,7 +93,7 @@ describe("/api", () => {
         });
     });
   });
-  describe.only("/articles/:article_id", () => {
+  describe("GET /articles/:article_id", () => {
     it("GET /articles/:article_id Returns a 200 status code when path is valid", () => {
       return request(app).get("/api/articles/1").expect(200);
     });
@@ -111,7 +111,6 @@ describe("/api", () => {
         .get("/api/articles/1")
         .expect(200)
         .then((res) => {
-          console.log(res.body);
           const keysOfArticle = Object.keys(res.body.article[0]);
           console.log(keysOfArticle);
           expect(Array.isArray(res.body.article)).toBe(true);
@@ -138,6 +137,78 @@ describe("/api", () => {
         .then((res) => {
           expect(res.body.msg).toBe("this article does not exist");
         });
+    });
+    describe.only("PATCH /articles/:article_id", () => {
+      it("PATCH Returns a 200 status code to a valid path", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .expect(200)
+          .send({ inc_votes: 2 });
+      });
+      it("PATCH Returns an object with the key of article", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .expect(200)
+          .send({ inc_votes: 2 })
+          .then((res) => {
+            expect(res.body).toHaveProperty("article");
+          });
+      });
+      it("PATCH Returns an object with the votes key updated by specified amount", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .expect(200)
+          .send({ inc_votes: 2 })
+          .then((res) => {
+            //article 1 votes is currently 102
+            expect(res.body.article[0].votes).toBe(102);
+          });
+      });
+      it("PATCH Returns the correct article containing the correct keys", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .expect(200)
+          .send({ inc_votes: 2 })
+          .then((res) => {
+            const keysOfArticle = Object.keys(res.body.article[0]);
+            expect(res.body.article[0].article_id).toBe(1);
+            expect(keysOfArticle).toEqual(
+              expect.arrayContaining([
+                "article_id",
+                "title",
+                "body",
+                "votes",
+                "topic",
+                "author",
+                "created_at",
+              ])
+            );
+          });
+      });
+      it("PATCH Returns 404 when the path is invalid", () => {
+        return request(app)
+          .patch("/api/artikle")
+          .expect(404)
+          .send({ inc_votes: 2 });
+      });
+      it("PATCH Returns a 404 when the path is valid but the article does not exist", () => {
+        return request(app)
+          .patch("/api/articles/300")
+          .expect(404)
+          .send({ inc_votes: 2 })
+          .then((res) => {
+            expect(res.body.msg).toBe("this article does not exist");
+          });
+      });
+      it("PATCH Returns 400 bad request when path contains a bad request ", () => {
+        return request(app)
+          .patch("/api/articles/banana")
+          .expect(400)
+          .send({ inc_votes: 2 })
+          .then((res) => {
+            expect(res.body.msg).toBe("bad request");
+          });
+      });
     });
   });
 });
