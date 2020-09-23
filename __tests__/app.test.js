@@ -41,7 +41,7 @@ describe("/api", () => {
         });
     });
   });
-  describe.only("/users/:username", () => {
+  describe("/users/:username", () => {
     it("GET /users/:username should return with a 200 status code", () => {
       return request(app).get("/api/users/icellusedkars").expect(200);
     });
@@ -90,6 +90,53 @@ describe("/api", () => {
         .then((res) => {
           console.log(res.body);
           expect(res.body.msg).toBe("this user does not exist");
+        });
+    });
+  });
+  describe.only("/articles/:article_id", () => {
+    it("GET /articles/:article_id Returns a 200 status code when path is valid", () => {
+      return request(app).get("/api/articles/1").expect(200);
+    });
+    it("GET /articles/:article_id return an object with the key of article", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then((res) => {
+          console.log(res.body);
+          expect(res.body).toHaveProperty("article");
+        });
+    });
+    it("GET /articles/:article_id returns an object with the key of article which is an array containing an object of the correct keys", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then((res) => {
+          console.log(res.body);
+          const keysOfArticle = Object.keys(res.body.article[0]);
+          console.log(keysOfArticle);
+          expect(Array.isArray(res.body.article)).toBe(true);
+          expect(keysOfArticle).toEqual(
+            expect.arrayContaining([
+              "article_id",
+              "title",
+              "body",
+              "votes",
+              "topic",
+              "author",
+              "created_at",
+            ])
+          );
+        });
+    });
+    it("GET request to a invalid path returns a 404", () => {
+      return request(app).get("/api/artiklez/2").expect(404);
+    });
+    it("GET request to valid path but invalid article returns 404", () => {
+      return request(app)
+        .get("/api/articles/100")
+        .expect(404)
+        .then((res) => {
+          expect(res.body.msg).toBe("this article does not exist");
         });
     });
   });

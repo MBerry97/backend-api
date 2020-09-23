@@ -17,9 +17,21 @@ exports.fetchUserByUsername = (username) => {
         return { user };
       }
     });
+};
 
-  //too stop 200 for last test
-  //if .length = 0
-  //promise.reject
-  //check pics on phone
+exports.fetchArticleById = (id) => {
+  return knex("articles")
+    .where("article_id", id)
+    .select("*")
+    .returning("*")
+    .then((article) => {
+      if (article.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "this article does not exist",
+        });
+      } else {
+        return { article };
+      }
+    });
 };
