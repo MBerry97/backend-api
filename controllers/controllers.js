@@ -3,6 +3,7 @@ const {
   fetchUserByUsername,
   fetchArticleById,
   updateArticleById,
+  postCommentByArticleId,
 } = require("../models/models");
 
 exports.getTopics = (req, res, next) => {
@@ -47,6 +48,19 @@ exports.patchArticleById = (req, res, next) => {
     })
     .catch((err) => {
       console.log(err);
+      next(err);
+    });
+};
+
+exports.sendCommentByArticleId = (req, res, next) => {
+  const { article_id } = req.params;
+  const { username, body } = req.body;
+
+  postCommentByArticleId(article_id, username, body)
+    .then((comment) => {
+      res.status(201).send({ comment });
+    })
+    .catch((err) => {
       next(err);
     });
 };

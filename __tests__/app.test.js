@@ -138,7 +138,7 @@ describe("/api", () => {
           expect(res.body.msg).toBe("this article does not exist");
         });
     });
-    describe.only("PATCH /articles/:article_id", () => {
+    describe("PATCH /articles/:article_id", () => {
       it("PATCH Returns a 200 status code to a valid path", () => {
         return request(app)
           .patch("/api/articles/1")
@@ -207,6 +207,63 @@ describe("/api", () => {
           .send({ inc_votes: 2 })
           .then((res) => {
             expect(res.body.msg).toBe("bad request");
+          });
+      });
+    });
+    describe.only("POST /articles/:article_id/comments", () => {
+      it("POST Returns a 201 status code to a valid path", () => {
+        return request(app)
+          .post("/api/articles/1/comments")
+          .expect(201)
+          .send({ username: "butter_bridge", body: "this is a great article" });
+      });
+      it("POST Returns a the posted comment in an object with a comment key", () => {
+        return request(app)
+          .post("/api/articles/1/comments")
+          .expect(201)
+          .send({ username: "butter_bridge", body: "this is a great article" })
+          .then((res) => {
+            expect(res.body).toHaveProperty("comment");
+          });
+      });
+      it("POST Returns the new comment object with the correct keys and values", () => {
+        return request(app)
+          .post("/api/articles/1/comments")
+          .expect(201)
+          .send({ username: "butter_bridge", body: "this is a great article" })
+          .then((res) => {
+            const commentObjKeys = Object.keys(res.body.comment[0]);
+            expect(commentObjKeys).toEqual(
+              expect.arrayContaining([
+                "comment_id",
+                "author",
+                "article_id",
+                "votes",
+                "body",
+                "created_at",
+              ])
+            );
+            expect(res.body.comment[0].author).toBe("butter_bridge");
+            expect(res.body.comment[0].body).toBe("this is a great article");
+            expect(typeof res.body.comment[0].comment_id).toBe("number");
+          });
+      });
+      it("POST Returns 404 when a invalid path is entered", () => {
+        request(app)
+          .post("/api/articles/2/comentzzz")
+          .expect(404)
+          .send({ username: "butter_bridge", body: "this is a great article" })
+          .then((res) => {
+            expect(res.body.msg).toBe("path not found");
+          });
+      });
+      it("POST Returns a 404 when the path is valid but the article does not exist", () => {
+        request(app)
+          .post("/api/articles/200/comments")
+          .expect(404)
+          .send({ username: "butter_bridge", body: "this is a great article" })
+          .then((res) => {
+            expect(res.body.msg).toBe("article does not exist");
           });
       });
     });
