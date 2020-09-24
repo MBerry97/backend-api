@@ -130,7 +130,7 @@ exports.fetchArticles = (
     });
 
   // .returning("*");
-
+  //promise.all for error handling
   //join comments
   //where comments.article_id = articles.article_id
 };

@@ -465,6 +465,7 @@ describe("/api", () => {
             expect(res.body.articles[0].topic).toEqual("cats");
           });
       });
+      it("Accepts a topic and author query and return the correct article", () => {});
     });
   });
 });
