@@ -92,3 +92,45 @@ exports.fetchCommentsByArticleId = (
       }
     });
 };
+
+exports.fetchArticles = (
+  sort_by = "created_at",
+  order = "desc",
+  author,
+  topic
+) => {
+  return knex
+    .select("articles.*")
+    .from("articles")
+    .count({ comment_count: "comment_id" })
+    .leftJoin("comments", "articles.article_id", "comments.article_id")
+    .groupBy("articles.article_id")
+    .orderBy(sort_by, order)
+    .then((res) => {
+      if (author) {
+        let filteredAuthor = res.filter((article) => {
+          return author === article.author;
+        });
+        if (topic) {
+          let filterTopicByAuthor = filteredAuthor.filter((article) => {
+            return topic === article.topic;
+          });
+          return filterTopicByAuthor;
+        }
+        return filteredAuthor;
+      }
+      if (topic) {
+        let filterTopic = res.filter((article) => {
+          return topic === article.topic;
+        });
+        return filterTopic;
+      } else {
+        return res;
+      }
+    });
+
+  // .returning("*");
+
+  //join comments
+  //where comments.article_id = articles.article_id
+};

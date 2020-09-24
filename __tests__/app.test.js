@@ -305,7 +305,7 @@ describe("/api", () => {
           });
       });
     });
-    describe.only("GET", () => {
+    describe("GET", () => {
       it("GET Returns a 200 status code with a valid request", () => {
         return request(app).get("/api/articles/9/comments").expect(200);
       });
@@ -378,6 +378,91 @@ describe("/api", () => {
           .expect(404)
           .then((res) => {
             expect(res.body.msg).toBe("this article does not exist");
+          });
+      });
+    });
+  });
+  describe.only("/articles", () => {
+    describe("GET", () => {
+      it("Returns a 200 to a valid path", () => {
+        return request(app).get("/api/articles").expect(200);
+      });
+      it("Return an object with the key of articles which holds an array of object that contain the correct keys", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then((res) => {
+            let keysOfArticle = Object.keys(res.body.articles[0]);
+            console.log(keysOfArticle);
+            expect(res.body).toHaveProperty("articles");
+            expect(keysOfArticle).toEqual(
+              expect.arrayContaining([
+                "article_id",
+                "title",
+                "body",
+                "votes",
+                "topic",
+                "author",
+                "created_at",
+              ])
+            );
+          });
+      });
+      it("Returns a key of comment_count which sums to the amount of comments for each article", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then((res) => {
+            expect(res.body.articles[0]).toHaveProperty("comment_count");
+          });
+      });
+      it("Accepts a sort_by query which succesfully sorts articles by a valid input", () => {
+        return request(app)
+          .get("/api/articles?sort_by=votes")
+          .expect(200)
+          .then((res) => {
+            expect(res.body.articles).toBeSortedBy("votes", {
+              descending: true,
+            });
+          });
+      });
+      it("The default sort_by is created_at", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then((res) => {
+            expect(res.body.articles).toBeSortedBy("created_at", {
+              descending: true,
+            });
+          });
+      });
+      it("Accepts an order query and returns it in that order", () => {
+        return request(app)
+          .get("/api/articles?order=asc")
+          .expect(200)
+          .then((res) => {
+            console.log(res.body.articles);
+            expect(res.body.articles).toBeSortedBy("created_at", {
+              ascending: true,
+            });
+          });
+      });
+      it("Accepts a author query and returns articles by the specified author", () => {
+        return request(app)
+          .get("/api/articles?author=rogersop")
+          .expect(200)
+          .then((res) => {
+            console.log(res.body.articles);
+            expect(res.body.articles[0].author).toBe("rogersop");
+          });
+      });
+      it("Accepts a topic query and returns the correct articles that belong to that topic", () => {
+        return request(app)
+          .get("/api/articles?topic=cats")
+          .expect(200)
+          .then((res) => {
+            console.log(res.body);
+            expect(res.body.articles[0].topic).toEqual("cats");
           });
       });
     });

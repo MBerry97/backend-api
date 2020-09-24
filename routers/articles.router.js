@@ -4,7 +4,10 @@ const {
   patchArticleById,
   sendCommentByArticleId,
   getCommentByArticleId,
+  getArticles,
 } = require("../controllers/controllers");
+
+articlesRouter.route("/").get(getArticles);
 
 articlesRouter
   .route("/:article_id")
