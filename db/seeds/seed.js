@@ -19,10 +19,12 @@ exports.seed = function (knex) {
           const newArticles = reformatDate(articles);
           return knex.insert(newArticles).into("articles").returning("*");
         })
-        .then((articles) => {
-          const refObj = referenceObj(articles, "title", "article_id");
+        .then((articless) => {
+          const refObj = referenceObj(articless, "title", "article_id");
+
           const newDateComments = reformatDate(comments);
           const newComments = replaceKeys(newDateComments, refObj);
+
           return knex.insert(newComments).into("comments");
         });
     });

@@ -1,6 +1,7 @@
 const app = require("../app");
 const request = require("supertest");
 const connection = require("../connection");
+const jestSorted = require("jest-sorted");
 
 beforeEach(() => {
   return connection.seed.run();
@@ -15,130 +16,136 @@ describe("/api", () => {
     return request(app).get("/api/jopikz").expect(404);
   });
   describe("/topics", () => {
-    it("GET /topics should return with a 200", () => {
-      return request(app).get("/api/topics/").expect(200);
-    });
-    it("GET /topics should return an object with a topics key which the value is an array", () => {
-      return request(app)
-        .get("/api/topics")
-        .expect(200)
-        .then((res) => {
-          const values = Object.values(res.body.topics);
-          console.log(values);
-          expect(Object.keys(res.body)[0]).toBe("topics");
-          expect(Array.isArray(res.body.topics)).toBe(true);
-        });
-    });
-    it("GET /topics array should contain objects with the keys slug and description", () => {
-      return request(app)
-        .get("/api/topics")
-        .expect(200)
-        .then((res) => {
-          expect(res.body.topics[0].slug).toEqual("mitch");
-          expect(res.body.topics[0].description).toEqual(
-            "The man, the Mitch, the legend"
-          );
-        });
+    describe("GET", () => {
+      it("GET /topics should return with a 200", () => {
+        return request(app).get("/api/topics/").expect(200);
+      });
+      it("GET /topics should return an object with a topics key which the value is an array", () => {
+        return request(app)
+          .get("/api/topics")
+          .expect(200)
+          .then((res) => {
+            const values = Object.values(res.body.topics);
+            console.log(values);
+            expect(Object.keys(res.body)[0]).toBe("topics");
+            expect(Array.isArray(res.body.topics)).toBe(true);
+          });
+      });
+      it("GET /topics array should contain objects with the keys slug and description", () => {
+        return request(app)
+          .get("/api/topics")
+          .expect(200)
+          .then((res) => {
+            expect(res.body.topics[0].slug).toEqual("mitch");
+            expect(res.body.topics[0].description).toEqual(
+              "The man, the Mitch, the legend"
+            );
+          });
+      });
     });
   });
   describe("/users/:username", () => {
-    it("GET /users/:username should return with a 200 status code", () => {
-      return request(app).get("/api/users/icellusedkars").expect(200);
-    });
-    it("GET /users/:username returns an object", () => {
-      return request(app)
-        .get("/api/users/icellusedkars")
-        .expect(200)
-        .then((res) => {
-          expect(typeof res.body).toBe("object");
-        });
-    });
-    it("GET /users/:username returns an object with a key of user", () => {
-      return request(app)
-        .get("/api/users/icellusedkars")
-        .expect(200)
-        .then((res) => {
-          const keysOfRes = Object.keys(res.body);
-          expect(keysOfRes).toEqual(expect.arrayContaining(["user"]));
-        });
-    });
-    it("GET /user/:username returns the values as an array containing an object of the correct user", () => {
-      return request(app)
-        .get("/api/users/icellusedkars")
-        .expect(200)
-        .then((res) => {
-          const keysOfRes = Object.keys(res.body.user[0]);
-          expect(Array.isArray(res.body.user)).toBe(true);
-          expect(res.body.user[0].username).toBe("icellusedkars");
-          expect(keysOfRes).toEqual(
-            expect.arrayContaining(["username", "avatar_url", "name"])
-          );
-        });
-    });
-    it("GET request to invalid URL return a 404", () => {
-      return request(app)
-        .get("/api/userrrr/isellkkars")
-        .expect(404)
-        .then((res) => {
-          expect(res.body.msg).toBe("path not found");
-        });
-    });
-    it("GET request to valid path but the user does not exists returns a 404", () => {
-      return request(app)
-        .get("/api/users/notAcorrectUser")
-        .expect(404)
-        .then((res) => {
-          console.log(res.body);
-          expect(res.body.msg).toBe("this user does not exist");
-        });
+    describe("GET", () => {
+      it("GET /users/:username should return with a 200 status code", () => {
+        return request(app).get("/api/users/icellusedkars").expect(200);
+      });
+      it("GET /users/:username returns an object", () => {
+        return request(app)
+          .get("/api/users/icellusedkars")
+          .expect(200)
+          .then((res) => {
+            expect(typeof res.body).toBe("object");
+          });
+      });
+      it("GET /users/:username returns an object with a key of user", () => {
+        return request(app)
+          .get("/api/users/icellusedkars")
+          .expect(200)
+          .then((res) => {
+            const keysOfRes = Object.keys(res.body);
+            expect(keysOfRes).toEqual(expect.arrayContaining(["user"]));
+          });
+      });
+      it("GET /user/:username returns the values as an array containing an object of the correct user", () => {
+        return request(app)
+          .get("/api/users/icellusedkars")
+          .expect(200)
+          .then((res) => {
+            const keysOfRes = Object.keys(res.body.user[0]);
+            expect(Array.isArray(res.body.user)).toBe(true);
+            expect(res.body.user[0].username).toBe("icellusedkars");
+            expect(keysOfRes).toEqual(
+              expect.arrayContaining(["username", "avatar_url", "name"])
+            );
+          });
+      });
+      it("GET request to invalid URL return a 404", () => {
+        return request(app)
+          .get("/api/userrrr/isellkkars")
+          .expect(404)
+          .then((res) => {
+            expect(res.body.msg).toBe("path not found");
+          });
+      });
+      it("GET request to valid path but the user does not exists returns a 404", () => {
+        return request(app)
+          .get("/api/users/notAcorrectUser")
+          .expect(404)
+          .then((res) => {
+            console.log(res.body);
+            expect(res.body.msg).toBe("this user does not exist");
+          });
+      });
     });
   });
-  describe("GET /articles/:article_id", () => {
-    it("GET /articles/:article_id Returns a 200 status code when path is valid", () => {
-      return request(app).get("/api/articles/1").expect(200);
+  describe("/articles/:article_id", () => {
+    describe("GET", () => {
+      it("GET /articles/:article_id Returns a 200 status code when path is valid", () => {
+        return request(app).get("/api/articles/1").expect(200);
+      });
+      it("GET /articles/:article_id return an object with the key of article", () => {
+        return request(app)
+          .get("/api/articles/1")
+          .expect(200)
+          .then((res) => {
+            console.log(res.body);
+            expect(res.body).toHaveProperty("article");
+          });
+      });
+      it("GET /articles/:article_id returns an object with the key of article which is an array containing an object of the correct keys", () => {
+        return request(app)
+          .get("/api/articles/1")
+          .expect(200)
+          .then((res) => {
+            const keysOfArticle = Object.keys(res.body.article[0]);
+            console.log(keysOfArticle);
+            expect(Array.isArray(res.body.article)).toBe(true);
+            expect(keysOfArticle).toEqual(
+              expect.arrayContaining([
+                "article_id",
+                "title",
+                "body",
+                "votes",
+                "topic",
+                "author",
+                "created_at",
+              ])
+            );
+          });
+      });
+      it("GET request to a invalid path returns a 404", () => {
+        return request(app).get("/api/artiklez/2").expect(404);
+      });
+      it("GET request to valid path but invalid article returns 404", () => {
+        return request(app)
+          .get("/api/articles/100")
+          .expect(404)
+          .then((res) => {
+            expect(res.body.msg).toBe("this article does not exist");
+          });
+      });
     });
-    it("GET /articles/:article_id return an object with the key of article", () => {
-      return request(app)
-        .get("/api/articles/1")
-        .expect(200)
-        .then((res) => {
-          console.log(res.body);
-          expect(res.body).toHaveProperty("article");
-        });
-    });
-    it("GET /articles/:article_id returns an object with the key of article which is an array containing an object of the correct keys", () => {
-      return request(app)
-        .get("/api/articles/1")
-        .expect(200)
-        .then((res) => {
-          const keysOfArticle = Object.keys(res.body.article[0]);
-          console.log(keysOfArticle);
-          expect(Array.isArray(res.body.article)).toBe(true);
-          expect(keysOfArticle).toEqual(
-            expect.arrayContaining([
-              "article_id",
-              "title",
-              "body",
-              "votes",
-              "topic",
-              "author",
-              "created_at",
-            ])
-          );
-        });
-    });
-    it("GET request to a invalid path returns a 404", () => {
-      return request(app).get("/api/artiklez/2").expect(404);
-    });
-    it("GET request to valid path but invalid article returns 404", () => {
-      return request(app)
-        .get("/api/articles/100")
-        .expect(404)
-        .then((res) => {
-          expect(res.body.msg).toBe("this article does not exist");
-        });
-    });
-    describe("PATCH /articles/:article_id", () => {
+    describe("PATCH", () => {
       it("PATCH Returns a 200 status code to a valid path", () => {
         return request(app)
           .patch("/api/articles/1")
@@ -210,7 +217,9 @@ describe("/api", () => {
           });
       });
     });
-    describe.only("POST /articles/:article_id/comments", () => {
+  });
+  describe("/articles/:article_id/comments", () => {
+    describe("POST", () => {
       it("POST Returns a 201 status code to a valid path", () => {
         return request(app)
           .post("/api/articles/1/comments")
@@ -249,7 +258,7 @@ describe("/api", () => {
           });
       });
       it("POST Returns 404 when a invalid path is entered", () => {
-        request(app)
+        return request(app)
           .post("/api/articles/2/comentzzz")
           .expect(404)
           .send({ username: "butter_bridge", body: "this is a great article" })
@@ -258,12 +267,83 @@ describe("/api", () => {
           });
       });
       it("POST Returns a 404 when the path is valid but the article does not exist", () => {
-        request(app)
+        return request(app)
           .post("/api/articles/200/comments")
           .expect(404)
           .send({ username: "butter_bridge", body: "this is a great article" })
           .then((res) => {
-            expect(res.body.msg).toBe("article does not exist");
+            expect(res.body.msg).toBe("path or user does not exist");
+          });
+      });
+      it("POST Returns a 404 when specified username does not exist", () => {
+        return request(app)
+          .post("/api/articles/1/comments")
+          .expect(404)
+          .send({ username: 3434, body: 8888 })
+          .then((res) => {
+            expect(res.body.msg).toBe("path or user does not exist");
+          });
+      });
+      it("POST Responds a 400 bad request if the username input is missing", () => {
+        return request(app)
+          .post("/api/articles/1/comments")
+          .expect(400)
+          .send({ body: 8888 })
+          .then((res) => {
+            console.log(res.body);
+            expect(res.body.msg).toBe("bad request");
+          });
+      });
+      it("POST Responds a 400 bad request if the body input is missing", () => {
+        return request(app)
+          .post("/api/articles/1/comments")
+          .expect(400)
+          .send({ username: "butter_bridge" })
+          .then((res) => {
+            console.log(res.body);
+            expect(res.body.msg).toBe("bad request");
+          });
+      });
+    });
+    describe("GET", () => {
+      it("GET Returns a 200 status code with a valid request", () => {
+        return request(app).get("/api/articles/2/comments").expect(200);
+      });
+      it("Retuns an object with the key - comments", () => {
+        return request(app)
+          .get("/api/articles/9/comments")
+          .expect(200)
+          .then((res) => {
+            console.log(res);
+            expect(res.body).toHaveProperty("comments");
+          });
+      });
+      it("Returns an object with the correct keys of the correct article", () => {
+        return request(app)
+          .get("/api/articles/9/comments")
+          .expect(200)
+          .then((res) => {
+            let commentKeys = Object.keys(res.body.comments[0]);
+            expect(res.body.comments[0].article_id).toBe(9);
+            expect(commentKeys).toEqual(
+              expect.arrayContaining([
+                "comment_id",
+                "author",
+                "article_id",
+                "votes",
+                "body",
+                "created_at",
+              ])
+            );
+          });
+      });
+      it("Returns the comments sorted by the default created_at row", () => {
+        return request(app)
+          .get("/api/articles/9/comments")
+          .expect(200)
+          .then((res) => {
+            console.log(res.body.comments);
+            expect(res.body.comments).toBeSortedBy("created_at");
           });
       });
     });

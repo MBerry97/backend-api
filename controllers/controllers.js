@@ -4,6 +4,7 @@ const {
   fetchArticleById,
   updateArticleById,
   postCommentByArticleId,
+  fetchCommentsByArticleId,
 } = require("../models/models");
 
 exports.getTopics = (req, res, next) => {
@@ -63,4 +64,12 @@ exports.sendCommentByArticleId = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+exports.getCommentByArticleId = (req, res, next) => {
+  const { article_id } = req.params;
+  console.log(article_id);
+  fetchCommentsByArticleId(article_id).then((comments) => {
+    res.status(200).send({ comments });
+  });
 };

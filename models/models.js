@@ -54,16 +54,28 @@ exports.updateArticleById = (id, updateValue) => {
 };
 
 exports.postCommentByArticleId = (id, username, body) => {
-  // console.log(id, author, body);
-  //fetch article by Id func
-  //if length = 0, promise.reject
-  //else return the below
-
   return knex("comments")
     .returning("*")
     .insert([{ author: username, article_id: id, body: body }])
     .then((res) => {
       console.log(res);
+      if (res.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "this article does not exist",
+        });
+      } else {
+        return res;
+      }
+    });
+};
+
+exports.fetchCommentsByArticleId = (id) => {
+  return knex("comments")
+    .where("article_id", id)
+    .select("*")
+    .returning("*")
+    .then((res) => {
       return res;
     });
 };
