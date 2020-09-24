@@ -465,7 +465,30 @@ describe("/api", () => {
             expect(res.body.articles[0].topic).toEqual("cats");
           });
       });
-      it("Accepts a topic and author query and return the correct article", () => {});
+      it("Accepts a topic and author query and returns the correct articles", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch&author=butter_bridge")
+          .expect(200)
+          .then((res) => {
+            let authorArr = [];
+            let topicArr = [];
+            res.body.articles.forEach((article) => {
+              authorArr.push(article.author);
+            });
+            res.body.articles.forEach((article) => {
+              topicArr.push(article.topic);
+            });
+
+            const isSameAuthor = authorArr.every((name) => {
+              return name === "butter_bridge";
+            });
+            const isSameTopic = topicArr.every((topic) => {
+              return topic === "mitch";
+            });
+            expect(isSameAuthor).toBe(true);
+            expect(isSameTopic).toBe(true);
+          });
+      });
     });
   });
 });
