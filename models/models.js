@@ -70,12 +70,25 @@ exports.postCommentByArticleId = (id, username, body) => {
     });
 };
 
-exports.fetchCommentsByArticleId = (id) => {
+exports.fetchCommentsByArticleId = (
+  id,
+  sort_by = "created_at",
+  order = "desc"
+) => {
   return knex("comments")
     .where("article_id", id)
     .select("*")
+    .orderBy(sort_by, order)
     .returning("*")
     .then((res) => {
-      return res;
+      console.log(res);
+      if (res.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "this article does not exist",
+        });
+      } else {
+        return res;
+      }
     });
 };

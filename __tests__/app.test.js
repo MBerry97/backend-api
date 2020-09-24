@@ -305,9 +305,9 @@ describe("/api", () => {
           });
       });
     });
-    describe("GET", () => {
+    describe.only("GET", () => {
       it("GET Returns a 200 status code with a valid request", () => {
-        return request(app).get("/api/articles/2/comments").expect(200);
+        return request(app).get("/api/articles/9/comments").expect(200);
       });
       it("Retuns an object with the key - comments", () => {
         return request(app)
@@ -337,13 +337,47 @@ describe("/api", () => {
             );
           });
       });
-      it("Returns the comments sorted by the default created_at row", () => {
+      it("Returns the comments sorted by the default created_at", () => {
         return request(app)
           .get("/api/articles/9/comments")
           .expect(200)
           .then((res) => {
             console.log(res.body.comments);
-            expect(res.body.comments).toBeSortedBy("creted_at");
+            expect(res.body.comments).toBeSortedBy("created_at", {
+              descending: true,
+            });
+          });
+      });
+      it("Returns the comments sorted by a valid input in descending order", () => {
+        return request(app)
+          .get("/api/articles/9/comments?sort_by=votes")
+          .expect(200)
+          .then((res) => {
+            console.log(res.body.comments);
+            expect(res.body.comments).toBeSortedBy("votes", {
+              descending: true,
+            });
+          });
+      });
+      it("GET Returns the comment sorted by a valid input in ascending order and descending by default", () => {
+        return request(app)
+          .get("/api/articles/9/comments?sort_by=votes&order=asc")
+          .expect(200)
+          .then((res) => {
+            expect(res.body.comments).toBeSortedBy("votes", {
+              ascending: true,
+            });
+          });
+      });
+      it("Returns a 404 when a invalid path is entered", () => {
+        return request(app).get("/api/articlesnum9/9/comments").expect(404);
+      });
+      it("Return a 404 when the path is valid but the article does not exist", () => {
+        return request(app)
+          .get("/api/articles/999/comments")
+          .expect(404)
+          .then((res) => {
+            expect(res.body.msg).toBe("this article does not exist");
           });
       });
     });

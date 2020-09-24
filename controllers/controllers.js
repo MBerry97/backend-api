@@ -68,8 +68,14 @@ exports.sendCommentByArticleId = (req, res, next) => {
 
 exports.getCommentByArticleId = (req, res, next) => {
   const { article_id } = req.params;
-  console.log(article_id);
-  fetchCommentsByArticleId(article_id).then((comments) => {
-    res.status(200).send({ comments });
-  });
+  const { sort_by, order } = req.query;
+
+  console.log(order);
+  fetchCommentsByArticleId(article_id, sort_by, order)
+    .then((comments) => {
+      res.status(200).send({ comments });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
