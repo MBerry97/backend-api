@@ -343,7 +343,7 @@ describe("/api", () => {
           .expect(200)
           .then((res) => {
             console.log(res.body.comments);
-            expect(res.body.comments).toBeSortedBy("created_at");
+            expect(res.body.comments).toBeSortedBy("creted_at");
           });
       });
     });
