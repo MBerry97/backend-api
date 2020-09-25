@@ -13,7 +13,7 @@ exports.handle400s = (err, req, res, next) => {
 };
 //psql err 404s
 exports.psql404s = (err, req, res, next) => {
-  if (err.code === "23503") {
+  if (err.code === "23503" || err.code === "42703") {
     res.status(404).send({ msg: "path or user does not exist" });
   } else {
     next(err);

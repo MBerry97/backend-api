@@ -111,6 +111,9 @@ exports.fetchArticles = (
         let filteredAuthor = res.filter((article) => {
           return author === article.author;
         });
+        if (filteredAuthor.length === 0) {
+          return Promise.reject({ status: 404, msg: "author does not exist" });
+        }
         if (topic) {
           let filterTopicByAuthor = filteredAuthor.filter((article) => {
             return topic === article.topic;

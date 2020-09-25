@@ -488,7 +488,7 @@ describe("/api", () => {
             expect(isSameTopic).toBe(true);
           });
       });
-      it.only("Accepts all queries and return the correct article depending on the queries", () => {
+      it("Accepts all queries and return the correct article depending on the queries", () => {
         return request(app)
           .get(
             "/api/articles?sort_by=votes&order=asc&author=rogersop&topic=cats"
@@ -516,6 +516,25 @@ describe("/api", () => {
             });
             expect(isSameAuthor).toBe(true);
             expect(isSameTopic).toBe(true);
+          });
+      });
+      it("Returns a 404 when path is invalid", () => {
+        return request(app).get("/api/articlees").expect(404);
+      });
+      it("Returns a 404 when the sory_by query is invalid", () => {
+        return request(app)
+          .get("/api/articles?sort_by=price")
+          .expect(404)
+          .then((res) => {
+            expect(res.body.msg).toBe("path or user does not exist");
+          });
+      });
+      it("Returns a 404 when the author query is invalid", () => {
+        return request(app)
+          .get("/api/articles?author=fakeauthor")
+          .expect(404)
+          .then((res) => {
+            expect(res.body.msg).toBe("author does not exist");
           });
       });
     });
