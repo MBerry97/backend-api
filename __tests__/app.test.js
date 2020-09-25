@@ -472,10 +472,9 @@ describe("/api", () => {
           .then((res) => {
             let authorArr = [];
             let topicArr = [];
+
             res.body.articles.forEach((article) => {
               authorArr.push(article.author);
-            });
-            res.body.articles.forEach((article) => {
               topicArr.push(article.topic);
             });
 
