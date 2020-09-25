@@ -488,6 +488,36 @@ describe("/api", () => {
             expect(isSameTopic).toBe(true);
           });
       });
+      it.only("Accepts all queries and return the correct article depending on the queries", () => {
+        return request(app)
+          .get(
+            "/api/articles?sort_by=votes&order=asc&author=rogersop&topic=cats"
+          )
+          .expect(200)
+          .then((res) => {
+            let authorArr = [];
+            let topicArr = [];
+
+            res.body.articles.forEach((article) => {
+              authorArr.push(article.author);
+              topicArr.push(article.topic);
+            });
+
+            const isSameAuthor = authorArr.every((name) => {
+              return name === "rogersop";
+            });
+            const isSameTopic = topicArr.every((topic) => {
+              return topic === "cats";
+            });
+            console.log(authorArr);
+            console.log(topicArr);
+            expect(res.body.articles).toBeSortedBy("votes", {
+              ascending: true,
+            });
+            expect(isSameAuthor).toBe(true);
+            expect(isSameTopic).toBe(true);
+          });
+      });
     });
   });
 });
